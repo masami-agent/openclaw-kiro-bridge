@@ -2,7 +2,7 @@
   "mcpServers": {
     "acp-bridge": {
       "command": "node",
-      "args": ["/home/vboxuser/.local/lib/acp-bridge-mcp/index.js"],
+      "args": ["~/.local/lib/acp-bridge-mcp/index.js"],
       "env": {
         "ACP_BRIDGE_URL": "http://127.0.0.1:7800"
       }

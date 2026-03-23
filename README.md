@@ -133,6 +133,12 @@ Then enable it in `~/.openclaw/openclaw.json`:
 | `TELEGRAM_BOT_TOKEN` | Your Telegram bot token from @BotFather |
 | `ACP_BRIDGE_URL` | acp-bridge daemon URL (default: `http://127.0.0.1:7800`) |
 
+## Security Notes
+
+- `--trust-all-tools` auto-approves all kiro tool permission requests. Only use in a trusted local environment. Remove this flag if you want manual approval per tool call.
+- Never commit `.env` or any file containing real tokens/keys.
+- acp-bridge binds to `127.0.0.1` by default — do not expose port 7800 publicly.
+
 ## License
 
 MIT
