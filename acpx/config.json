@@ -1,0 +1,8 @@
+{
+  "agents": {
+    "kiro": {
+      "command": "/home/vboxuser/.local/bin/kiro-cli",
+      "args": ["acp", "--trust-all-tools"]
+    }
+  }
+}
