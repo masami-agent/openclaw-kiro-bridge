@@ -134,6 +134,65 @@ Then set `TELEGRAM_BOT_TOKEN` and `ACPX_BIN` in your environment before restarti
 
 > **Note:** Use either SOUL patch **or** hook — not both — to avoid duplicate replies.
 
+## Troubleshooting
+
+**Can't find openclaw directory (Step 2)**
+
+`npm root -g` only works if openclaw was installed via npm globally. Try these alternatives:
+
+```bash
+# Option A: which/whereis
+which openclaw && ls $(dirname $(which openclaw))/../lib/node_modules/openclaw
+
+# Option B: find common locations
+ls ~/.local/lib/node_modules/openclaw 2>/dev/null
+ls /usr/local/lib/node_modules/openclaw 2>/dev/null
+ls /usr/lib/node_modules/openclaw 2>/dev/null
+
+# Option C: ask openclaw directly
+openclaw --config-dir 2>/dev/null || openclaw config --show 2>/dev/null
+```
+
+Once found, replace `$OPENCLAW_DIR` in Step 2 with the actual path.
+
+---
+
+**`acp-bridge daemon start` fails**
+
+Check if port 7800 is already in use:
+```bash
+lsof -i :7800
+# If occupied, change port in ~/.config/acp-bridge/config.json and kiro-cli/cli.json
+```
+
+---
+
+**`systemctl --user` not available (macOS / non-systemd Linux)**
+
+Manually start the gateway:
+```bash
+openclaw gateway start &
+```
+
+---
+
+**kiro-cli not authenticated**
+
+```bash
+kiro-cli auth login
+# Follow the prompts to connect your AWS Bedrock account
+```
+
+---
+
+**acpx can't find kiro after setup**
+
+Ensure `kiro-cli` is in PATH:
+```bash
+which kiro-cli   # should return a path
+# If not, add its install location to PATH in ~/.bashrc
+```
+
 ## File Structure
 
 ```
