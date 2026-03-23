@@ -7,7 +7,7 @@ Integrates [kiro-cli](https://kiro.dev) as an ACP agent into [OpenClaw](https://
 ```
 Telegram / any channel
   ↓
-OpenClaw agent (executes SOUL instructions)
+OpenClaw agent (SOUL instructions)
   ↓ acpx kiro
 kiro-cli acp --trust-all-tools
   ↓
@@ -16,27 +16,21 @@ Kiro LLM (AWS Bedrock)
 Telegram / any channel
 ```
 
-## File Structure
-
-```
-.
-├── acpx/config.json                          # Register kiro as acpx agent
-├── acp-bridge/config.json                    # acp-bridge daemon config
-├── mcp-server/index.js                       # MCP server wrapping acp-bridge for kiro-cli
-├── kiro-cli/cli.json                         # kiro-cli MCP server registration
-└── openclaw/
-    ├── SOUL-patch.md                         # Prepend this to your SOUL.md
-    └── hooks/kiro-relay-hook/
-        ├── HOOK.md                           # Hook metadata (alternative approach)
-        └── handler.ts                        # Hook handler (alternative approach)
-```
-
 ## Prerequisites
 
-- [kiro-cli](https://kiro.dev) installed and authenticated
-- [OpenClaw](https://openclaw.ai) installed and running
+- [kiro-cli](https://kiro.dev) installed and authenticated (`kiro-cli --version` should work)
+- [OpenClaw](https://openclaw.ai) installed and running (`openclaw --version` should work)
 - Node.js >= 18
 - A Telegram bot token (from [@BotFather](https://t.me/BotFather))
+
+## Quick Start
+
+```bash
+git clone https://github.com/masami-agent/openclaw-kiro-bridge.git
+cd openclaw-kiro-bridge
+```
+
+Then follow the steps below.
 
 ## Setup
 
@@ -44,57 +38,69 @@ Telegram / any channel
 
 ```bash
 npm install -g acp-bridge
+mkdir -p ~/.config/acp-bridge
 cp acp-bridge/config.json ~/.config/acp-bridge/config.json
 acp-bridge daemon start
+# Verify: acp-bridge daemon status
 ```
 
 ### 2. Register kiro in acpx
 
 ```bash
+mkdir -p ~/.acpx
 cp acpx/config.json ~/.acpx/config.json
 
-# Install acpx locally inside openclaw extensions
-cd ~/.local/lib/node_modules/openclaw/extensions/acpx
+# Find your openclaw extensions directory
+OPENCLAW_DIR=$(npm root -g)/openclaw
+echo "openclaw is at: $OPENCLAW_DIR"
+
+# Install acpx inside openclaw extensions
+mkdir -p $OPENCLAW_DIR/extensions/acpx
+cd $OPENCLAW_DIR/extensions/acpx
 npm install --omit=dev --no-save acpx
 
 # Verify
-./node_modules/.bin/acpx kiro --help
+./node_modules/.bin/acpx --version
 ```
 
 ### 3. Setup kiro-cli MCP server
 
 ```bash
+cd ~/openclaw-kiro-bridge   # back to repo root
+
 mkdir -p ~/.local/lib/acp-bridge-mcp
 cp mcp-server/index.js ~/.local/lib/acp-bridge-mcp/index.js
+
+mkdir -p ~/.kiro/settings
 cp kiro-cli/cli.json ~/.kiro/settings/cli.json
 ```
 
-### 4. Patch your OpenClaw SOUL
+### 4. Set environment variables
 
-Prepend `openclaw/SOUL-patch.md` to your agent's `SOUL.md`:
+```bash
+cp .env.example .env
+# Edit .env and fill in your values:
+#   TELEGRAM_BOT_TOKEN=your_bot_token_here
+#   ACPX_BIN=/path/to/acpx   (only if acpx is not in PATH)
+```
+
+### 5. Patch your OpenClaw SOUL
 
 ```bash
 cat openclaw/SOUL-patch.md | cat - ~/.openclaw/workspace/SOUL.md > /tmp/SOUL.md
 mv /tmp/SOUL.md ~/.openclaw/workspace/SOUL.md
 ```
 
-### 5. Set environment variable
-
-```bash
-export TELEGRAM_BOT_TOKEN=your_bot_token_here
-# or add to ~/.bashrc
-```
-
 ### 6. Restart OpenClaw gateway
 
 ```bash
 systemctl --user restart openclaw-gateway.service
-openclaw hooks list  # should show kiro-relay-hook ✓ ready
+systemctl --user is-active openclaw-gateway.service   # should print: active
 ```
 
 ## Test
 
-Send any message to your OpenClaw Telegram bot. The agent will relay it to kiro and return the answer.
+Send any message to your OpenClaw Telegram bot:
 
 ```
 You:   "What is the capital of France?"
@@ -111,7 +117,7 @@ Instead of patching SOUL.md, you can use the hook in `openclaw/hooks/kiro-relay-
 cp -r openclaw/hooks/kiro-relay-hook ~/.openclaw/hooks/
 ```
 
-Then enable it in `~/.openclaw/openclaw.json`:
+Enable it in `~/.openclaw/openclaw.json`:
 
 ```json
 "hooks": {
@@ -124,14 +130,33 @@ Then enable it in `~/.openclaw/openclaw.json`:
 }
 ```
 
-> Note: Use either SOUL patch **or** hook, not both, to avoid duplicate replies.
+Then set `TELEGRAM_BOT_TOKEN` and `ACPX_BIN` in your environment before restarting the gateway.
+
+> **Note:** Use either SOUL patch **or** hook — not both — to avoid duplicate replies.
+
+## File Structure
+
+```
+.
+├── .env.example                              # Environment variable template
+├── acpx/config.json                          # Register kiro as acpx agent
+├── acp-bridge/config.json                    # acp-bridge daemon config
+├── mcp-server/index.js                       # MCP server wrapping acp-bridge for kiro-cli
+├── kiro-cli/cli.json                         # kiro-cli MCP server registration
+└── openclaw/
+    ├── SOUL-patch.md                         # Prepend this to your SOUL.md
+    └── hooks/kiro-relay-hook/
+        ├── HOOK.md                           # Hook metadata (alternative approach)
+        └── handler.ts                        # Hook handler (alternative approach)
+```
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `TELEGRAM_BOT_TOKEN` | Your Telegram bot token from @BotFather |
-| `ACP_BRIDGE_URL` | acp-bridge daemon URL (default: `http://127.0.0.1:7800`) |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `TELEGRAM_BOT_TOKEN` | Yes | Your Telegram bot token from @BotFather |
+| `ACPX_BIN` | No | Full path to acpx binary (if not in PATH) |
+| `ACP_BRIDGE_URL` | No | acp-bridge URL (default: `http://127.0.0.1:7800`) |
 
 ## Security Notes
 
