@@ -6,7 +6,8 @@ After=network.target acp-bridge.service
 ExecStart=node %h/.local/lib/kiro-openai-proxy/index.js
 Restart=on-failure
 Environment=ACP_BRIDGE_URL=http://127.0.0.1:7800
-Environment=KIRO_PROXY_KEY=kiro-local
+# KIRO_PROXY_KEY should be set in your environment, not here
+# Add to ~/.bashrc: export KIRO_PROXY_KEY=your-random-string
 
 [Install]
 WantedBy=default.target

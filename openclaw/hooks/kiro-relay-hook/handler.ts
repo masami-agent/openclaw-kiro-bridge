@@ -18,7 +18,7 @@ const handler = async (event: any) => {
   if (!content) return;
 
   const chatId = event.sessionKey?.split(":").pop();
-  if (!chatId) return;
+  if (!chatId || !/^\d+$/.test(chatId)) return; // only allow numeric Telegram chat IDs
 
   const sessionName = `oc-kiro-${chatId}`;
 

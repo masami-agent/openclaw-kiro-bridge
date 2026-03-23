@@ -87,7 +87,7 @@ And add this at the top level of `openclaw.json`:
 ### 4. Set environment variable
 
 ```bash
-echo 'export KIRO_PROXY_KEY=kiro-local' >> ~/.bashrc
+echo 'export KIRO_PROXY_KEY=your-random-secret' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -171,9 +171,19 @@ Change `PROXY_PORT` in the systemd service file and update `baseUrl` in `opencla
 
 ## Security Notes
 
-- `--trust-all-tools` in acp-bridge config auto-approves all kiro tool requests. Only use in a trusted local environment.
-- Never commit `.env` or any file containing real tokens/keys.
-- Both acp-bridge (7800) and the proxy (4099) bind to `127.0.0.1` — do not expose these ports publicly.
+### `--trust-all-tools` ⚠️ High Risk if misused
+Auto-approves all kiro tool calls (file read/write, shell commands, web search) without prompting. Any message sent to your agent can potentially trigger system-level operations.
+- Only run on a machine you fully control
+- Remove this flag if you want manual approval per tool call in production
+- Never expose port 7800 or 4099 to the public internet
+
+### Token & Key Handling
+- Never commit `.env` or any file containing real tokens/keys
+- Set `KIRO_PROXY_KEY` in `~/.bashrc`, not in the systemd service file
+
+### Input Validation
+- Proxy enforces a 64KB request body limit
+- Hook handler validates `chatId` is numeric only (prevents shell injection)
 
 ## License
 

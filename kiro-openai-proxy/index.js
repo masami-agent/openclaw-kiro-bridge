@@ -38,7 +38,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   let body = "";
-  req.on("data", (c) => (body += c));
+  const MAX_BODY = 64 * 1024; // 64KB limit
+  req.on("data", (c) => {
+    body += c;
+    if (body.length > MAX_BODY) { res.writeHead(413); res.end(); req.destroy(); }
+  });
   req.on("end", async () => {
     try {
       const { messages = [] } = JSON.parse(body);
