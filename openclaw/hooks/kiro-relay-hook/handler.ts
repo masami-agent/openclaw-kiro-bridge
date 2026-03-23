@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 
-const ACPX = "/home/vboxuser/.local/lib/node_modules/openclaw/extensions/acpx/node_modules/.bin/acpx";
+const ACPX = process.env.ACPX_BIN || "acpx";
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
 async function sendTelegram(chatId: string, text: string) {
