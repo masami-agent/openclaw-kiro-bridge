@@ -1,0 +1,12 @@
+[Unit]
+Description=kiro OpenAI-compatible proxy
+After=network.target acp-bridge.service
+
+[Service]
+ExecStart=node %h/.local/lib/kiro-openai-proxy/index.js
+Restart=on-failure
+Environment=ACP_BRIDGE_URL=http://127.0.0.1:7800
+Environment=KIRO_PROXY_KEY=kiro-local
+
+[Install]
+WantedBy=default.target
