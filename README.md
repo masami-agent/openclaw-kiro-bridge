@@ -23,6 +23,42 @@ Telegram / any channel
 - Node.js >= 18
 - A Telegram bot token (from [@BotFather](https://t.me/BotFather))
 
+## Approach Comparison
+
+There are two ways to integrate kiro with OpenClaw. Choose based on your needs:
+
+| | SOUL Patch (this repo) | Native Bedrock Model |
+|---|---|---|
+| SOUL personality | ❌ Overridden — agent becomes a relay | ✅ Fully preserved |
+| kiro tools (file/code/search) | ✅ Available | ❌ Not available |
+| Complexity | High (acpx + shell exec) | Low (one config change) |
+| Stability | Medium | High |
+
+### Option A: Native Bedrock (recommended if you only want to swap the LLM)
+
+If you just want to replace OpenAI with AWS Bedrock while keeping your SOUL personality intact:
+
+```bash
+# Set AWS credentials
+aws configure
+
+# Switch OpenClaw to use a Bedrock model
+openclaw models set amazon-bedrock/anthropic.claude-sonnet-4-6
+
+# Restart
+systemctl --user restart openclaw-gateway.service
+```
+
+Your SOUL is untouched. OpenClaw will use Claude on AWS Bedrock as the underlying LLM.
+
+> Run `openclaw models list --all | grep amazon-bedrock` to see all available Bedrock models.
+
+### Option B: kiro-cli ACP relay (this repo)
+
+Use this if you need kiro's tool capabilities (file read/write, code execution, web search) in your agent's responses. Follow the full setup below.
+
+---
+
 ## Quick Start
 
 ```bash
