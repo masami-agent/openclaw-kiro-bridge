@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 
 const ACPX = "/home/vboxuser/.local/lib/node_modules/openclaw/extensions/acpx/node_modules/.bin/acpx";
-const BOT_TOKEN = "7896590993:AAG1qJe8CJ_oA-ypQTQRO0WjJ7Y9uEdcSWM";
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
 async function sendTelegram(chatId: string, text: string) {
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
